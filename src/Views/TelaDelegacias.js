@@ -1,13 +1,20 @@
-import React from 'react';
-import { StyleSheet, View, Text, ScrollView } from 'react-native';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { Feather } from '@expo/vector-icons';
+
 import dataDelegacias from '../data/Delegacias';
 import Logo from '../Componentes/estiloLogo';
 
 const TelaDelegacias = () => {
   const navigation = useNavigation();
-  const [delegacias, setDelegacias] = useState(dataDelegacias);
+  const delegacias = dataDelegacias;
+
+  const [expanded, setExpanded] = useState(null);
+
+  const toggleExpanded = (title) => {
+    setExpanded(expanded === title ? null : title);
+  };
 
   return (
     <ScrollView>
@@ -17,14 +24,31 @@ const TelaDelegacias = () => {
       </View>
 
       <View style={styles.container}>
-        {delegacias.map(delegacia => (
-          <View key={delegacia.id_delegacias}>
-            <Text style={styles.texto}>{delegacia.title}</Text>
-            <Text style={styles.texto}>{delegacia.desc}</Text>
-            <Text style={styles.texto}>{delegacia.ende}</Text>
-            <Text style={styles.texto}>{delegacia.tel}</Text>
+      {delegacias.map(delegacia => (
+        <TouchableOpacity
+          key={delegacia.id}
+          style={styles.item}
+          onPress={() => toggleExpanded(delegacia.title)}
+        >
+          <View style={styles.rowContainer}>
+            <Text style={styles.titleDel}>{delegacia.title}</Text>
+            <Feather
+              name={expanded === delegacia.title ? 'chevron-up' : 'chevron-down'}
+              color={'white'}
+              size={30}
+            />
           </View>
-        ))}
+          <View style={styles.divider}></View>
+
+          {expanded === delegacia.title && (
+            <View>
+              <Text style={styles.texto}>{delegacia.desc}</Text>
+              <Text style={styles.texto}>{delegacia.ende}</Text>
+              <Text style={styles.texto}>{delegacia.tel}</Text>
+            </View>
+          )}
+        </TouchableOpacity>
+      ))}
       </View>
     </ScrollView>
   );
@@ -33,8 +57,6 @@ const TelaDelegacias = () => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#000',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   cabecalho: {
     flexDirection: 'row',
@@ -51,6 +73,26 @@ const styles = StyleSheet.create({
   texto: {
     color: 'white',
     textAlign: 'center',
+  },
+  item: {
+    marginBottom: 25,
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  divider: {
+    height: 1,
+    width: 290,
+    marginTop: 4,
+    backgroundColor: '#4759FA',
+    marginLeft: 40,
+  },
+  titleDel: {
+    color: 'white',
+    textAlign: 'center',
+    flex: 1,
   },
 });
 

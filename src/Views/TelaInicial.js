@@ -46,7 +46,7 @@ const TelaInicial = () => {
             source={require('../../img/Sirene.png')}
             style={styles.imgs} 
         />
-        <Text style={styles.textButtons}>Delegacias Próximas</Text> 
+        <Text style={styles.textButtons}>Delegacias próximas</Text> 
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -60,7 +60,8 @@ const TelaInicial = () => {
             source={require('../../img/admin.png')} 
             style={styles.imgs}
         />
-        <Text style={styles.textButtons}>Órgãos de assistência à mulher</Text> 
+        {/* <Text style={styles.textButtons}>Órgãos de</Text>  */}
+        <Text style={styles.textButtons}>Assistência à mulher</Text> 
         </TouchableOpacity>
 
         </View>
@@ -158,7 +159,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     height: 140,
     backgroundColor: '#D9D9D9',
-    width: 360,
+    width: 350,
     borderRadius: 100,
     alignItems: 'center',
     justifyContent: 'center',
@@ -189,6 +190,8 @@ const styles = StyleSheet.create({
   textButtons: {
     color: 'white',
     fontWeight: 'bold',
+    fontSize: 16,
+    alignItems: 'center',
   },
   assistencia: {
     width: 147,

@@ -15,7 +15,7 @@ const TelaLogin = () => {
       <TextInput
         style={styles.input}
         placeholder="Email"
-        placeholderTextColor="#FFF"
+        placeholderTextColor='gray'
       />
 
       <View style={styles.divider}></View>
@@ -24,7 +24,7 @@ const TelaLogin = () => {
         style={styles.input}
         placeholder="Senha"
         secureTextEntry={true}
-        placeholderTextColor="#FFF"
+        placeholderTextColor='gray'
       />
 
       <View style={styles.divider}></View>
@@ -105,6 +105,7 @@ const styles = StyleSheet.create({
   textButton: {
     fontSize: 17,
     color: 'white',
+    fontWeight: 'bold',
   },
   esqueciSenha: {
     marginVertical: 20,

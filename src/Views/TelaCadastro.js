@@ -1,19 +1,52 @@
-import { useNavigation } from '@react-navigation/native';
 import React, { useState } from "react";
-import { StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
-import { ScrollView } from 'react-native';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { Picker } from "@react-native-picker/picker";
+import { TextInputMask } from "react-native-masked-text";
+
 import Logo from '../Componentes/estiloLogo';
 
 const TelaCadastro = () => {
   const navigation = useNavigation();
-  const [data, setData] = useState({});
 
-  const changeDate = (evento) => {
-    setData(evento.nativeEvent.text);
-  }
+  const [tipoDocumento, setTipoDocumento] = useState("Selecione o documento");
+  const [documento, setDocumento] = useState('')
+  const [nomeCompleto, setNome] = useState('')
+  const [nomeSocial, setNomeSocial] = useState('')
+  const [nomeMae, setNomeMae] = useState('')
+  const [dataNasc, setDataNasc] = useState('')
+  const [email, setEmail] = useState('')
+  const [senha, setSenha] = useState('')
+  const [confirmSenha, setConfirmsenha] = useState('')
+
+  const handlesingIn = () => {
+    if (!nomeCompleto || !nomeSocial || !nomeMae || !dataNasc || !email || !senha || !confirmSenha) {
+      alert('Preencha os campos corretamente');
+      return;
+    }
+  
+
+  const data = {
+    tipoDocumento,
+    documentoNumero: documento,
+    nomeCompleto,
+    nomeSocial,
+    nomeMae,
+    dataNasc,
+    email,
+    senha,
+    confirmSenha,
+  };
+  console.log(data);
+}
+
+
+
+const changeDate = (valor) => {
+  setDataNasc(valor);
+};
 
   return (
-    <>
     <View>
       <ScrollView>
         <View style={styles.cabecalho}>
@@ -22,12 +55,37 @@ const TelaCadastro = () => {
         </View>
 
         <View style={styles.container}>
-          <Text style={styles.text}>CPF/RG/CRM</Text>
-          <TextInput
-            style={styles.input}
-            placeholder='Selecione o documento CPF/RG/CRM'
-            placeholderTextColor='#CCC6C6'
-          />
+          {tipoDocumento === 'Selecione o documento' && (
+            <>
+              <Text style={styles.text}>Escolha um documento</Text>
+              <Picker
+                style={styles.input}
+                selectedValue={tipoDocumento}
+                onValueChange={(valor) => setTipoDocumento(valor)}
+              >
+                <Picker.Item label='Selecione o documento' value='Selecione o documento' />
+                <Picker.Item label='CPF' value='CPF' />
+                <Picker.Item label='RG' value='RG' />
+              </Picker>
+            </>
+          )}
+
+          {tipoDocumento !== 'Selecione o documento' && (
+            <>
+              <Text style={styles.text}>{tipoDocumento}</Text>
+              <TextInputMask
+                style={styles.input}
+                placeholder={`Digite o número do ${tipoDocumento}`}
+                placeholderTextColor='#CCC6C6'
+                value={documento}
+                keyboardType={'numeric'}
+                type={tipoDocumento === 'CPF' ? 'cpf' : 'custom'}
+                options={{ mask: '99.999.999-9' }}
+                /* maxLength={tipoDocumento === 'CPF' ? 11 : 11} */
+                onChangeText={setDocumento}
+              />
+            </>
+          )}
 
           <View style={styles.divider}></View>
 
@@ -35,16 +93,19 @@ const TelaCadastro = () => {
           <TextInput
             style={styles.input}
             placeholder='Digite seu nome completo'
-            placeholderTextColor='#CCC6C6'
+            value={nomeCompleto}
+            onChangeText={setNome}
+            placeholderTextColor='gray'
           />
-
           <View style={styles.divider}></View>
 
           <Text style={styles.text}>Nome Social</Text>
           <TextInput
             style={styles.input}
             placeholder='Digite seu nome social'
-            placeholderTextColor='#CCC6C6'
+            value={nomeSocial}
+            onChangeText={setNomeSocial}
+            placeholderTextColor='gray'
           />
           <View style={styles.divider}></View>
           <Text style={styles.textOp}>Campo opcional</Text>
@@ -53,17 +114,23 @@ const TelaCadastro = () => {
           <TextInput
             style={styles.input}
             placeholder='Digite o nome da sua mãe'
-            placeholderTextColor='#CCC6C6'
+            value={nomeMae}
+            onChangeText={setNomeMae}
+            placeholderTextColor='gray'
           />
           <View style={styles.divider}></View>
 
           <Text style={styles.text}>Data de nascimento</Text>
-          <TextInput
+          <TextInputMask
             style={styles.input}
+            type={'datetime'}
+            options={{
+              format: 'DD/MM/YYYY'
+            }}
             placeholder='DD/MM/AAAA'
-            placeholderTextColor='#CCC6C6'
-            value={data}
-            onChangeText={changeDate}
+            placeholderTextColor='gray'
+            value={dataNasc}
+            onChangeText={setDataNasc}
             keyboardType={'numeric'}
           />
           <View style={styles.divider}></View>
@@ -72,7 +139,8 @@ const TelaCadastro = () => {
           <TextInput
             style={styles.input}
             placeholder='Digite o seu email'
-            placeholderTextColor='#CCC6C6'
+            value={email}
+            placeholderTextColor='gray'
           />
           <View style={styles.divider}></View>
 
@@ -80,8 +148,9 @@ const TelaCadastro = () => {
           <TextInput
             style={styles.input}
             placeholder='Digite sua senha'
+            value={senha}
             secureTextEntry={true}
-            placeholderTextColor='#CCC6C6'
+            placeholderTextColor='gray'
           />
           <View style={styles.divider}></View>
 
@@ -89,14 +158,16 @@ const TelaCadastro = () => {
           <TextInput
             style={styles.input}
             placeholder='Confirme sua senha'
+            value={confirmSenha}
             secureTextEntry={true}
-            placeholderTextColor='#CCC6C6'
+            placeholderTextColor='gray'
           />
           <View style={styles.divider}></View>
 
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
+              handlesingIn();
               navigation.navigate('Inicio');
             }}
           >
@@ -106,10 +177,9 @@ const TelaCadastro = () => {
           </ScrollView>
         </View>
       
-    </>
+    
   );
-};
-
+}
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -134,6 +204,7 @@ const styles = StyleSheet.create({
     marginRight: 100,
     marginTop: 20,
     marginVertical: -9,
+    fontWeight: 'bold',
   },
   textOp: {
     color: '#8A00E0',
@@ -168,8 +239,8 @@ const styles = StyleSheet.create({
   textButton:{
     fontSize: 17,
     color: 'white',
+    fontWeight: 'bold',
   },
 });
-
 
 export default TelaCadastro;

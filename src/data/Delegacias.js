@@ -12,7 +12,13 @@ const dataDelegacias = [
         tel: 673,
     },
     {
-        title: 'Delegacia da Mulher - ? MS',
+        title: 'Delegacia da Mulher - Campo Grande MS',
+        desc: '...........',
+        ende: 'Rua ......',
+        tel: 673,
+    },
+    {
+        title: 'Delegacia da Mulher - Douradina MS',
         desc: '...........',
         ende: 'Rua ......',
         tel: 673,
@@ -24,19 +30,13 @@ const dataDelegacias = [
         tel: 673,
     },
     {
-        title: 'Delegacia da Mulher - ? MS',
+        title: 'Delegacia da Mulher - Vicentina MS',
         desc: '...........',
         ende: 'Rua ......',
         tel: 673,
     },
     {
-        title: 'Delegacia da Mulher - ? MS',
-        desc: '...........',
-        ende: 'Rua ......',
-        tel: 673,
-    },
-    {
-        title: 'Delegacia da Mulher - ? MS',
+        title: 'Delegacia da Mulher - Corumba MS',
         desc: '...........',
         ende: 'Rua ......',
         tel: 673,
