@@ -3,8 +3,8 @@ import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView } from 
 import { useNavigation } from '@react-navigation/native';
 import { Picker } from "@react-native-picker/picker";
 import { TextInputMask } from "react-native-masked-text";
-
 import Logo from '../Componentes/estiloLogo';
+import db from '../Config/dbConnection';
 
 const TelaCadastro = () => {
   const navigation = useNavigation();
@@ -18,34 +18,63 @@ const TelaCadastro = () => {
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
   const [confirmSenha, setConfirmsenha] = useState('')
+  const [camposCertos, setcamposCertos] = useState(false);
+  const [senhaCerta, setsenhaCerta] = useState(false);
 
-  const handlesingIn = () => {
-    if (!nomeCompleto || !nomeSocial || !nomeMae || !dataNasc || !email || !senha || !confirmSenha) {
+  const ConfirmandoSenha = () => {
+    if (confirmSenha === senha) {
+      setsenhaCerta(true);
+      return ;
+    } else {
+      alert('As senhas não coincidem');
+      setsenhaCerta(false);
+    }  
+  }
+
+  const Campos = () => {
+    if (!nomeCompleto || !nomeMae || !dataNasc || !email || !senha || !confirmSenha) {
       alert('Preencha os campos corretamente');
+      setcamposCertos(false);
       return;
+    } else {
+      setcamposCertos(true);
     }
-  
-
-  const data = {
-    tipoDocumento,
-    documentoNumero: documento,
-    nomeCompleto,
-    nomeSocial,
-    nomeMae,
-    dataNasc,
-    email,
-    senha,
-    confirmSenha,
   };
-  console.log(data);
-}
-
-
-
-const changeDate = (valor) => {
-  setDataNasc(valor);
-};
-
+  
+  const CadastrarUsuaria = async () => {
+    try {
+      if (!camposCertos || !senhaCerta) {
+        alert('Preencha os campos corretamente');
+        return;
+      }
+  
+      db.transaction((transaction) => {
+        transaction.executeSql(
+          'INSERT INTO usuaria (tipoDocumento, documentoNumero, nomeCompleto, nomeSocial, nomeMae, dataNasc, email, senha) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+          [
+            tipoDocumento,
+            documento,
+            nomeCompleto,
+            nomeSocial,
+            nomeMae,
+            dataNasc,
+            email,
+            senha,
+          ],
+          (_, results) => {
+            console.log('Usuário cadastrado com sucesso:', results);
+            navigation.navigate('Inicio');
+          },
+          (_, error) => {
+            console.error('Erro ao cadastrar usuário no banco de dados:', error);
+          }
+        );
+      });
+  
+    } catch (error) {
+      console.error('Erro ao cadastrar usuário:', error.message);
+    }
+  };
   return (
     <View>
       <ScrollView>
@@ -80,7 +109,7 @@ const changeDate = (valor) => {
                 value={documento}
                 keyboardType={'numeric'}
                 type={tipoDocumento === 'CPF' ? 'cpf' : 'custom'}
-                options={{ mask: '99.999.999-9' }}
+                options={{ mask: '9.999.999' }}
                 /* maxLength={tipoDocumento === 'CPF' ? 11 : 11} */
                 onChangeText={setDocumento}
               />
@@ -140,6 +169,7 @@ const changeDate = (valor) => {
             style={styles.input}
             placeholder='Digite o seu email'
             value={email}
+            onChangeText={setEmail}
             placeholderTextColor='gray'
           />
           <View style={styles.divider}></View>
@@ -150,6 +180,7 @@ const changeDate = (valor) => {
             placeholder='Digite sua senha'
             value={senha}
             secureTextEntry={true}
+            onChangeText={setSenha}
             placeholderTextColor='gray'
           />
           <View style={styles.divider}></View>
@@ -159,6 +190,7 @@ const changeDate = (valor) => {
             style={styles.input}
             placeholder='Confirme sua senha'
             value={confirmSenha}
+            onChangeText={setConfirmsenha}
             secureTextEntry={true}
             placeholderTextColor='gray'
           />
@@ -167,8 +199,12 @@ const changeDate = (valor) => {
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
-              handlesingIn();
+              Campos();
+              CadastrarUsuaria();
+              ConfirmandoSenha();
+              /* if(camposCertos === true && senhaCerta === true){
               navigation.navigate('Inicio');
+              } */
             }}
           >
             <Text style={styles.textButton}>Cadastrar</Text>
@@ -180,6 +216,7 @@ const changeDate = (valor) => {
     
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -216,8 +253,8 @@ const styles = StyleSheet.create({
     width: 200,
     height: 40,
     backgroundColor: "black",
-    marginVertical: 10, // Adicionei margem vertical entre os inputs
-    paddingHorizontal: 10, // Adicionei preenchimento lateral aos inputs
+    marginVertical: 10,
+    paddingHorizontal: 10,
     color: 'white',
   },
   divider: {

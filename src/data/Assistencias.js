@@ -1,4 +1,4 @@
-const dataDelegacias = [
+const dataAssistencias = [
     {
         id: 1,
         title: 'Delegacia da Mulher - Dourados MS',
@@ -50,4 +50,4 @@ const dataDelegacias = [
     },
 ]
 
-export default dataDelegacias;
+export default dataAssistencias;

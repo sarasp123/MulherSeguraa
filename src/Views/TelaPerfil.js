@@ -1,7 +1,8 @@
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import React from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, DrawerActions } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
+import Logo from '../Componentes/estiloLogo';
 
 const TelaPerfil = () => {
   const navigation = useNavigation();
@@ -9,7 +10,19 @@ const TelaPerfil = () => {
   return (
     <>
       <View style={styles.cabecalho}>
-        <View style={styles.logo}></View>
+      <TouchableOpacity
+        onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+        style={{
+          position: 'absolute',
+          top: 20,
+          left: 20,
+          padding: 10,
+          zIndex: 1,
+        }}
+      >
+        <Feather name="menu" size={30} color="white" />
+      </TouchableOpacity>
+        <Logo /> 
         <Text style={styles.titulo}>Informações pessoais</Text>
       </View>
 
