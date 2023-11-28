@@ -10,19 +10,23 @@ const TelaPerfil = () => {
   return (
     <>
       <View style={styles.cabecalho}>
+            
       <TouchableOpacity
         onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
         style={{
-          position: 'absolute',
-          top: 20,
-          left: 20,
-          padding: 10,
-          zIndex: 1,
+          top: 5,
+          left: 15,
         }}
       >
         <Feather name="menu" size={30} color="white" />
       </TouchableOpacity>
-        <Logo /> 
+      <View style={styles.logoContainer}>
+          <Logo
+            style={{
+              padding: 10,
+            }}
+          />
+        </View>
         <Text style={styles.titulo}>Informações pessoais</Text>
       </View>
 
@@ -79,6 +83,12 @@ const styles = StyleSheet.create({
   cabecalho: {
     backgroundColor: 'black',
     height: 100,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  logoContainer: {
+    marginLeft: 10,
+    marginTop: 10,
   },
   logo: {
     width: 40,

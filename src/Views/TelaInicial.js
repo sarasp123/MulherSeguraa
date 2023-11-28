@@ -4,13 +4,11 @@ import { useNavigation } from '@react-navigation/native';
 import { DrawerActions } from '@react-navigation/native';
 import { Feather } from "@expo/vector-icons";
 import * as Location from 'expo-location';
-import { Audio } from 'expo-av';
 
 const TelaInicial = () => {
   const navigation = useNavigation();
   const [showModal, setShowModal] = useState(false);
   const [countdown, setCountdown] = useState(5);
-  const [recording, setRecording] = useState();
 
   useEffect(() => {
     let timer;
