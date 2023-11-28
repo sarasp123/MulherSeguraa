@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
 
@@ -17,10 +17,46 @@ const TelaAssistencia = () => {
     setExpanded(expanded === title ? null : title);
   };
 
+  const linkMapa = (address) => {
+    const formattedAddress = address.replace(/\s+/g, '+');
+    const mapLink = `https://www.google.com/maps/search/?api=1&query=${formattedAddress}`;
+    Linking.openURL(mapLink);
+  };
+
+  const linkTel = (telefones) => {
+    if (telefones.some(num => num.toLowerCase().includes('whats'))) {
+      // Se algum número tiver a indicação de "whats", abrir no WhatsApp
+      const cleanedNumbers = telefones.map(num => num.replace(/[^0-9]/g, ''));
+      const whatsappLink = `https://wa.me/${cleanedNumbers[0]}`;
+      Linking.openURL(whatsappLink);
+    } else {
+      // Caso contrário, abrir no aplicativo de telefone padrão
+      const cleanedNumbers = telefones.map(num => num.replace(/[^0-9]/g, ''));
+      const telefoneLink = `tel:${cleanedNumbers.join(',')}`;
+      Linking.openURL(telefoneLink);
+    }
+  };
+
   return (
     <>
       <View style={styles.cabecalho}>
-        <Logo />
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Inicio')}
+          style={{
+            top: 20,
+            left: 2,
+          }}
+        >
+          <Feather name="arrow-left" size={30} color="white" />
+        </TouchableOpacity>
+
+        <Logo 
+          style={{
+            top: 20,
+            left: 50,
+            padding: 10,
+          }}
+         />
         <Text style={styles.titulo}>Órgãos de assistência à mulher</Text>
       </View>
 
@@ -43,17 +79,53 @@ const TelaAssistencia = () => {
 
             {expanded === assistencia.title && (
               <View>
-                <Text style={styles.texto}>{assistencia.desc}</Text>
-                <Text style={styles.texto}>{assistencia.ende}</Text>
-                <Text style={styles.texto}>{assistencia.tel}</Text>
+                <Text style={styles.texto}><Feather name='clock' color={'#CB3EF5'} size={14}/> {assistencia.plantao}</Text>
+                
+                <Text style={styles.texto}>
+                  <Feather name="map-pin" color={'#CB3EF5'} size={14} />
+                  <Text
+                    style={{ textDecorationLine: 'underline', color: 'white' }}
+                    onPress={() => linkMapa(assistencia.ende)}
+                  >
+                    {' '}
+                    {assistencia.ende}
+                  </Text>
+                </Text>
+
+                {Array.isArray(assistencia.tel) ? (
+                  assistencia.tel.map((telefone, index) => (
+                    <Text key={index} style={styles.texto}>
+                      <Feather name="phone" color={'#CB3EF5'} size={14} />
+                      <Text
+                        style={{ textDecorationLine: 'underline', color: 'white' }}
+                        onPress={() => linkTel([telefone])}
+                      >
+                        {' '}
+                        {telefone}
+                      </Text>
+                    </Text>
+                  ))
+                ) : (
+                  <Text style={styles.texto}>
+                    <Feather name="phone" color={'#CB3EF5'} size={14} />
+                    <Text
+                      style={{ textDecorationLine: 'underline', color: 'white' }}
+                      onPress={() => linkTel([assistencia.tel])}
+                    >
+                      {' '}
+                      {assistencia.tel}
+                    </Text>
+                  </Text>
+                )}
               </View>
             )}
           </TouchableOpacity>
         ))}
       </View>
-      </>
+    </>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -68,13 +140,14 @@ const styles = StyleSheet.create({
   titulo: {
     fontWeight: 'bold',
     color: 'white',
-    fontSize: 20,
-    marginVertical: 15,
+    fontSize: 18,
+    marginVertical: 20,
     paddingHorizontal: 5,
   },
   texto: {
     color: 'white',
     textAlign: 'center',
+    marginTop: 7,
   },
   item: {
     marginBottom: 30,

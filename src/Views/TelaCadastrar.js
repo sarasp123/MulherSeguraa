@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import axios from "axios";
 
 import Logo from '../Componentes/estiloLogo';
 import { TextInputMask } from "react-native-masked-text";
@@ -19,6 +20,26 @@ const TelaCadastrar = () => {
       return;
     } else {
       setCamposCertos(true);
+    }
+  };
+
+  const CadastrarRede = async () => {
+    try {
+      const response = await axios.post('http://10.11.34.139:3000/cadastrarRede', {
+        nomeCompleto,
+        tel,
+      });
+  
+      console.log('Resposta do servidor:', response.data);
+  
+      if (response.data.success) {
+        alert('Usuário cadastrado com sucesso!');
+        navigation.navigate('TelaCadastrados');
+      } else {
+        alert('Erro ao cadastrar rede de apoio. Por favor, tente novamente.');
+      }
+    } catch (error) {
+      console.error('Erro na requisição Axios:', error);
     }
   };
 
@@ -41,7 +62,7 @@ const TelaCadastrar = () => {
         value={tel}
         keyboardType={'numeric'}
         type={'custom'}
-        options={{ mask: '99 9999-99999' }}
+        options={{ mask: '99 99999-9999' }}
         onChangeText={setTel}
         placeholderTextColor='gray'
       />
@@ -51,9 +72,7 @@ const TelaCadastrar = () => {
         style={styles.button}
         onPress={() => {
           Campos();
-          if (camposCertos === true) {
-            navigation.navigate('Inicio');
-          }
+          CadastrarRede();
         }}
       >
         <Text style={styles.textButton}>Cadastrar</Text>

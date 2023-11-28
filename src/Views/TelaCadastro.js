@@ -1,13 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Picker } from "@react-native-picker/picker";
 import { TextInputMask } from "react-native-masked-text";
+import { Feather } from "@expo/vector-icons";
 import Logo from '../Componentes/estiloLogo';
-import db from '../Config/dbConnection';
+import axios from 'axios';
+
 
 const TelaCadastro = () => {
   const navigation = useNavigation();
+  const [secureTextEntry, setSecureTextEntry] = useState(true);
+  const [secureTextEntryConfirm, setSecureTextEntryConfirm] = useState(true);
+
+
+  const esconderSenha = (campo) => {
+      setSecureTextEntry(!secureTextEntry);
+  };
+
+  const esconderConfirmSenha = (campo) => {
+    setSecureTextEntryConfirm(!secureTextEntryConfirm);
+};
 
   const [tipoDocumento, setTipoDocumento] = useState("Selecione o documento");
   const [documento, setDocumento] = useState('')
@@ -43,38 +56,31 @@ const TelaCadastro = () => {
   
   const CadastrarUsuaria = async () => {
     try {
-      if (!camposCertos || !senhaCerta) {
-        alert('Preencha os campos corretamente');
-        return;
-      }
-  
-      db.transaction((transaction) => {
-        transaction.executeSql(
-          'INSERT INTO usuaria (tipoDocumento, documentoNumero, nomeCompleto, nomeSocial, nomeMae, dataNasc, email, senha) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-          [
-            tipoDocumento,
-            documento,
-            nomeCompleto,
-            nomeSocial,
-            nomeMae,
-            dataNasc,
-            email,
-            senha,
-          ],
-          (_, results) => {
-            console.log('Usuário cadastrado com sucesso:', results);
-            navigation.navigate('Inicio');
-          },
-          (_, error) => {
-            console.error('Erro ao cadastrar usuário no banco de dados:', error);
-          }
-        );
+      const response = await axios.post('http://10.11.34.139:3000/cadastrar', {
+        tipoDocumento,
+        documento,
+        nomeCompleto,
+        nomeSocial,
+        nomeMae,
+        dataNasc,
+        email,
+        senha,
       });
   
+      console.log('Resposta do servidor:', response.data);
+  
+      if (response.data.success) {
+        alert('Usuário cadastrado com sucesso!');
+        navigation.navigate('Inicio');
+      } else {
+        alert('Erro ao cadastrar usuário. Por favor, tente novamente.');
+      }
     } catch (error) {
-      console.error('Erro ao cadastrar usuário:', error.message);
+      console.error('Erro na requisição Axios:', error);
     }
   };
+  
+
   return (
     <View>
       <ScrollView>
@@ -179,10 +185,17 @@ const TelaCadastro = () => {
             style={styles.input}
             placeholder='Digite sua senha'
             value={senha}
-            secureTextEntry={true}
+            secureTextEntry={secureTextEntry}
             onChangeText={setSenha}
             placeholderTextColor='gray'
           />
+          <TouchableOpacity onPress={() => esconderSenha}>
+            <Feather
+              name={secureTextEntry ? 'eye-off' : 'eye'}
+              color={'white'}
+              size={15}
+            />
+          </TouchableOpacity>
           <View style={styles.divider}></View>
 
           <Text style={styles.text}>Confirmar senha</Text>
@@ -191,9 +204,16 @@ const TelaCadastro = () => {
             placeholder='Confirme sua senha'
             value={confirmSenha}
             onChangeText={setConfirmsenha}
-            secureTextEntry={true}
+            secureTextEntry={secureTextEntryConfirm}
             placeholderTextColor='gray'
           />
+         <TouchableOpacity onPress={() => esconderConfirmSenha()}>
+            <Feather
+              name={secureTextEntryConfirm ? 'eye-off' : 'eye'}
+              color={'white'}
+              size={15}
+            />
+          </TouchableOpacity>
           <View style={styles.divider}></View>
 
           <TouchableOpacity
@@ -277,6 +297,16 @@ const styles = StyleSheet.create({
     fontSize: 17,
     color: 'white',
     fontWeight: 'bold',
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  passwordInput: {
+    height: 40,
+    width: 200,
+    backgroundColor: 'black',
+    paddingHorizontal: 10,
   },
 });
 

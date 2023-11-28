@@ -12,6 +12,7 @@ import TelaDelegacias from "../Views/TelaDelegacias";
 import TelaPerfil from "../Views/TelaPerfil";
 import TelaTutorial from "../Views/TelaTutorial";
 import TelaRedeApoio from "../Views/RedeApoio";
+import TelaViolencia from "../Views/TelaViolencia";
 import Tabs from "../Views/telaComTabs";
 import TelaAssistencia from "../Views/TelaAssistencia";
 
@@ -85,6 +86,7 @@ export default function AppStack() {
         <Stack.Screen name="TelaDelegacias"  component={TelaDelegacias} />
         <Stack.Screen name="TelaAssistencia"  component={TelaAssistencia} />
         <Stack.Screen name="TelaRedeApoio"  component={TelaRedeApoio} />
+        <Stack.Screen name="TelaViolencia"  component={TelaViolencia} />
       </Stack.Navigator>
     </NavigationContainer>
   );

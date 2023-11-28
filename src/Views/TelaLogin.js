@@ -1,10 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+import { Feather } from '@expo/vector-icons';
 import Logo from '../Componentes/estiloLogo';
 
 const TelaLogin = () => {
   const navigation = useNavigation();
+  const [email, setEmail] = React.useState('');
+  const [senha, setSenha] = React.useState('');
+  const [secureTextEntry, setSecureTextEntry] = useState(true);
+
+  const esconderSenha = () => {
+    setSecureTextEntry(!secureTextEntry);
+  };
 
   return (
     <View style={styles.container}>
@@ -16,16 +25,31 @@ const TelaLogin = () => {
         style={styles.input}
         placeholder="Email"
         placeholderTextColor='gray'
+        color= 'white'
+        value={email}
+        onChangeText={(text) => setEmail(text)} 
       />
 
       <View style={styles.divider}></View>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Senha"
-        secureTextEntry={true}
-        placeholderTextColor='gray'
-      />
+      <View style={styles.passwordContainer}>
+        <TextInput
+          style={styles.passwordInput}
+          placeholder="Senha"
+          secureTextEntry={secureTextEntry}
+          placeholderTextColor='gray'
+          color='white'
+          value={senha}
+          onChangeText={(text) => setSenha(text)} 
+        />
+        <TouchableOpacity onPress={esconderSenha}>
+          <Feather
+            name={secureTextEntry ? 'eye-off' : 'eye'}
+            color={'white'}
+            size={15}
+          />
+        </TouchableOpacity>
+      </View>
 
       <View style={styles.divider}></View>
 
@@ -34,6 +58,25 @@ const TelaLogin = () => {
         onPress={() => {
           navigation.navigate('Inicio');
         }}
+        /* onPress={async () => {
+          try {
+            const response = await axios.post('http://10.11.34.139:3000/login', {
+              email,
+              senha,
+            });
+      
+            if (response.data.success) {
+              // Login bem-sucedido, navegue para a tela desejada (por exemplo, 'Inicio')
+              navigation.navigate('Inicio');
+            } else {
+              // Login falhou, exiba uma mensagem de erro
+              alert('Login falhou. Credenciais inválidas.');
+            }
+          } catch (error) {
+            console.error('Erro na requisição Axios:', error);
+            alert('Erro interno do servidor');
+          }
+        }} */
       >
         <Text style={styles.textButton}>Entrar</Text>
       </TouchableOpacity>
@@ -51,7 +94,7 @@ const TelaLogin = () => {
       <TouchableOpacity
         style={styles.cadastre}
         onPress={() => {
-          navigation.navigate('TelaCadastro');
+          navigation.navigate('TelaCadastro')
         }}
       >
         <Text style={styles.textButton2}>Não tem uma conta? Cadastre-se</Text>
@@ -92,6 +135,16 @@ const styles = StyleSheet.create({
     width: 200,
     marginTop: -9,
     backgroundColor: '#4759FA',
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  passwordInput: {
+    height: 40,
+    width: 200,
+    backgroundColor: 'black',
+    paddingHorizontal: 10,
   },
   button: {
     height: 35,

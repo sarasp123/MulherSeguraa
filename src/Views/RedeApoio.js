@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
@@ -16,8 +16,24 @@ const TelaRedeApoio = () => {
   return (
     <>
       <View style={styles.cabecalho}>
-        <Logo />
-        <Text style={styles.titulo}>Rede de apoio</Text>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Inicio')}
+          style={{
+            top: 20,
+            left: 2,
+          }}
+        >
+          <Feather name="arrow-left" size={30} color="white" />
+        </TouchableOpacity>
+
+        <Logo 
+          style={{
+            top: 20,
+            left: 50,
+            padding: 10,
+          }}
+         />
+        <Text style={styles.titulo}>Órgãos de assistência à mulher</Text>
       </View>
 
       <Tab.Navigator
@@ -57,8 +73,8 @@ const styles = StyleSheet.create({
   titulo: {
     fontWeight: 'bold',
     color: 'white',
-    fontSize: 20,
-    marginVertical: 15,
+    fontSize: 18,
+    marginVertical: 20,
     paddingHorizontal: 5,
   },
 });

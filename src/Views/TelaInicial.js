@@ -4,11 +4,13 @@ import { useNavigation } from '@react-navigation/native';
 import { DrawerActions } from '@react-navigation/native';
 import { Feather } from "@expo/vector-icons";
 import * as Location from 'expo-location';
+import { Audio } from 'expo-av';
 
 const TelaInicial = () => {
   const navigation = useNavigation();
   const [showModal, setShowModal] = useState(false);
   const [countdown, setCountdown] = useState(5);
+  const [recording, setRecording] = useState();
 
   useEffect(() => {
     let timer;
@@ -41,13 +43,18 @@ const TelaInicial = () => {
       const { latitude, longitude } = location.coords;
 
       // Construir a mensagem
-      const message = `Pânico! Preciso de ajuda!\nLocalização: https://maps.google.com/?q=${latitude},${longitude}`;
-      const phoneNumber = '67996514882'; // Substitua pelo número de telefone real
+      for(i=0;i<SQLError.length;i++)
+      {
+        const message = `Pânico! Preciso de ajuda!\nLocalização: https://maps.google.com/?q=${latitude},${longitude}`;
+        const phoneNumber = sql[i].telefone; '67996514882'; // Substitua pelo número de telefone real
 
       // Abre o WhatsApp com a mensagem pré-preenchida
       const url = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
 
       Linking.openURL(url);
+
+      }
+      
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
     }
@@ -141,8 +148,7 @@ const TelaInicial = () => {
           <TouchableOpacity
             style={styles.tipos}
             onPress={() => {
-              // Adicione a lógica de navegação aqui
-              // Por exemplo: navigation.navigate('TelaPrincipal');
+              navigation.navigate('TelaViolencia');
             }}
           >
             <Image
