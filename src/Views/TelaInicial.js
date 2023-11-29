@@ -91,7 +91,7 @@ const TelaInicial = () => {
       </TouchableOpacity>
             <View style={styles.AAA}>
             <Image
-              source={require('../../img/logo.png')}
+              source={require('../../img/logo-mono.png')}
               style={styles.logo}
               
             />
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   logo: {
-    width: 60,
+    width: 74,
     height: 60,
   },
   ola: {

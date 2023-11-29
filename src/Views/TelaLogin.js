@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { Feather } from '@expo/vector-icons';
@@ -18,7 +18,11 @@ const TelaLogin = () => {
   return (
     <View style={styles.container}>
       <View style={styles.cabecalho}>
-        <Logo />
+        <Image source={require('../../img/logo.png')}
+        style={{
+          width: 185,
+          height: 150,
+        }}/>
       </View>
 
       <TextInput
@@ -81,7 +85,7 @@ const TelaLogin = () => {
         <Text style={styles.textButton}>Entrar</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={styles.esqueciSenha}
         onPress={() => {
           // Adicione a lógica de navegação aqui
@@ -89,7 +93,7 @@ const TelaLogin = () => {
         }}
       >
         <Text style={styles.textButton2}>Esqueci minha senha</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <TouchableOpacity
         style={styles.cadastre}
@@ -116,8 +120,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
   },
   logo: {
-    width: 40,
-    height: 40,
+    width: 50,
+    height: 50,
     backgroundColor: '#CB3EF5',
     borderRadius: 20,
     marginLeft: 10,
@@ -141,7 +145,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   passwordInput: {
-    height: 40,
+    height: 54,
     width: 200,
     backgroundColor: 'black',
     paddingHorizontal: 10,

@@ -35,8 +35,8 @@ const TelaEspera = () => {
       <Animated.Image
         source={require('../../img/logo.png')}
         style={{
-          width: 150,
-          height: 150,
+          width: 245,
+          height: 200,
           opacity: opacity,
         }}
       />
@@ -50,10 +50,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#000",
     alignItems: "center",
     justifyContent: "center",
-  },
-  logo: {
-    width: 150,
-    height: 150,
   },
 });
 

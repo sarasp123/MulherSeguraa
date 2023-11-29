@@ -14,9 +14,9 @@ export default function Logo() {
 
 const styles = StyleSheet.create({
 logo: {
-    width: 45,
+    width: 60,
     height: 45,
-    borderRadius: 20,
+    /* borderRadius: 20, */
     marginLeft: 10,
     marginVertical: 10,
   },

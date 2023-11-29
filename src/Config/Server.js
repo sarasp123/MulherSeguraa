@@ -3,7 +3,7 @@ const mysql = require('mysql');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const app = express();
-const port = 3306;
+const port = 3000;
 
 app.use(cors());
 app.use(express.json());
@@ -68,6 +68,44 @@ app.post('/cadastrar', async (req, res) => {
     res.json({ success: false, message: 'Erro interno do servidor.' });
   }
 });
+
+app.post('/verificarUsuario', (req, res) => {
+  const { cpf, rg, email } = req.body;
+
+  let sql;
+  let values;
+
+  if (cpf) {
+    sql = 'SELECT * FROM usuaria WHERE documentoNumero = ?';
+    values = [cpf];
+  } else if (rg) {
+    sql = 'SELECT * FROM usuaria WHERE documentoNumero = ?';
+    values = [rg];
+  } else if (email) {
+    sql = 'SELECT * FROM usuaria WHERE email = ?';
+    values = [email];
+  } else {
+    return res.json({ existeUsuario: false, message: 'Parâmetros inválidos.' });
+  }
+
+  connection.query(sql, values, (error, results) => {
+    if (error) {
+      console.error('Erro ao verificar usuário no banco de dados:', error);
+      return res.json({ existeUsuario: false, error: 'Erro interno do servidor' });
+    }
+
+    if (results.length > 0) {
+      res.json({ existeUsuario: true, message: 'Já existe um usuário com estes dados.' });
+    } else {
+      res.json({ existeUsuario: false, message: 'Usuário não encontrado.' });
+    }
+  });
+});
+
+
+
+
+
 
 app.post('/login', async (req, res) => {
   const { email, senha } = req.body;
