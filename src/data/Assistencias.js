@@ -25,7 +25,7 @@ const dataAssistencias = [
     },
     {
         id: 4,
-        title: 'Cras Indigena - Dourados MS',
+        title: 'Cras Indígena - Dourados MS',
         desc: '...........',
         plantao: '7h às 13h',
         ende: 'Rua Estrada Principal, Aldeia Bororó',

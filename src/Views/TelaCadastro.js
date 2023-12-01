@@ -57,7 +57,7 @@ const TelaCadastro = () => {
   const CadastrarUsuaria = async () => {
     try {
       // Verifica se já existe um usuário com o mesmo CPF no banco de dados
-      const verificaUsuarioExistente = await axios.post('http://192.168.1.105:3000/verificarUsuario', {
+      const verificaUsuarioExistente = await axios.post('http://10.11.34.130:3000/verificarUsuario', {
         cpf: tipoDocumento === 'CPF' ? documento : null,
         rg: tipoDocumento === 'RG' ? documento : null,
         email,
@@ -71,7 +71,7 @@ const TelaCadastro = () => {
       const [dia, mes, ano] = dataNasc.split('/');
       const dataNascFormatada = `${ano}/${mes}/${dia}`;
   
-      const response = await axios.post('http://192.168.1.105:3000/cadastrar', {
+      const response = await axios.post('http://10.11.34.130:3000/cadastrar', {
         tipoDocumento,
         documento,
         nomeCompleto,

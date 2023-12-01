@@ -59,12 +59,12 @@ const TelaLogin = () => {
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => {
+        /* onPress={() => {
           navigation.navigate('Inicio');
-        }}
-        /* onPress={async () => {
+        }} */
+        onPress={async () => {
           try {
-            const response = await axios.post('http://10.11.34.139:3000/login', {
+            const response = await axios.post('http://10.11.34.130:3000/login', {
               email,
               senha,
             });
@@ -80,7 +80,7 @@ const TelaLogin = () => {
             console.error('Erro na requisição Axios:', error);
             alert('Erro interno do servidor');
           }
-        }} */
+        }}
       >
         <Text style={styles.textButton}>Entrar</Text>
       </TouchableOpacity>

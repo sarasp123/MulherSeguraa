@@ -1,11 +1,28 @@
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { useNavigation, DrawerActions } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
+import axios from 'axios';
 import Logo from '../Componentes/estiloLogo';
 
 const TelaPerfil = () => {
   const navigation = useNavigation();
+  const [userData, setUserData] = useState({});
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('http://10.11.34.130:3000/perfil');
+        setUserData(response.data);
+      } catch (error) {
+        console.error('Erro ao buscar dados do perfil:', error);
+      }
+    };
+  
+    fetchData();
+  }, []);
+
+
 
   return (
     <>
@@ -29,12 +46,12 @@ const TelaPerfil = () => {
         </View>
         <Text style={styles.titulo}>Informações pessoais</Text>
       </View>
-
       <View style={styles.container}>
+        
         <View style={styles.conjunto}>
           <View style={styles.textos}>
             <Text style={styles.tituloNome}>Nome:</Text>
-            <Text style={styles.nome}> nome completo </Text>
+            <Text style={styles.nome}> {userData.nomeCompleto} </Text>
           </View>
           <Feather name="edit-2" color={'white'} size={25} marginRight={15} />
         </View>
@@ -42,7 +59,7 @@ const TelaPerfil = () => {
         <View style={styles.conjunto}>
           <View style={styles.textos}>
             <Text style={styles.tituloNome}>Nome Social:</Text>
-            <Text style={styles.nome}> nome social </Text>
+            <Text style={styles.nome}> {userData.nomeSocial} </Text>
           </View>
           <Feather name="edit-2" color={'white'} size={25} marginRight={15} />
         </View>
@@ -50,7 +67,7 @@ const TelaPerfil = () => {
         <View style={styles.conjunto}>
           <View style={styles.textos}>
             <Text style={styles.tituloNome}>Data de Nascimento:</Text>
-            <Text style={styles.nome}> xx/xx/xxxx </Text>
+            <Text style={styles.nome}> {userData.dataNasc} </Text>
           </View>
           <Feather name="edit-2" color={'white'} size={25} marginRight={15} />
         </View>
@@ -58,7 +75,7 @@ const TelaPerfil = () => {
         <View style={styles.conjunto}>
           <View style={styles.textos}>
             <Text style={styles.tituloNome}>Email:</Text>
-            <Text style={styles.nome}> email completo </Text>
+            <Text style={styles.nome}> {userData.email} </Text>
           </View>
           <Feather name="edit-2" color={'white'} size={25} marginRight={15} />
         </View>
@@ -66,7 +83,7 @@ const TelaPerfil = () => {
         <View style={styles.conjunto}>
           <View style={styles.textos}>
             <Text style={styles.tituloNome}>Senha:</Text>
-            <Text style={styles.nome}> senha escondida </Text>
+            <Text style={styles.nome}> Editar Senha </Text>
           </View>
           <Feather name="edit-2" color={'white'} size={25} marginRight={15} />
         </View>

@@ -7,7 +7,7 @@ const port = 3000;
 
 app.use(cors());
 app.use(express.json());
-var  id_user;
+var id_user;
 
 const connection = mysql.createConnection({
   host: 'localhost',
@@ -137,6 +137,8 @@ app.post('/login', async (req, res) => {
 });
 
 
+
+
 app.post('/cadastrarRede', async (req, res) => {
   const {
     nomeCompleto,
@@ -164,6 +166,92 @@ app.post('/cadastrarRede', async (req, res) => {
     res.json({ success: false, message: 'Erro interno do servidor.' });
   }
 });
+
+app.post('/verificarRede', (req, res) => {
+  const { tel } = req.body; // Supondo que você está verificando pelo número de telefone
+
+  // Verifica se o número de telefone já existe na tabela rede_apoio
+  const sql = 'SELECT * FROM rede_apoio WHERE tel = ?';
+  const values = [tel];
+
+  connection.query(sql, values, (error, results) => {
+    if (error) {
+      console.error('Erro ao verificar número na rede de apoio:', error);
+      return res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+
+    if (results.length > 0) {
+      res.json({ existeNumero: true, message: 'Número já cadastrado na rede de apoio.' });
+    } else {
+      res.json({ existeNumero: false, message: 'Número não encontrado na rede de apoio.' });
+    }
+  });
+});
+
+
+
+
+app.get('/perfil', async (req, res) => {
+
+  const sql = 'SELECT * FROM usuaria WHERE id_usuaria = ?';
+  const values = [id_user];
+
+  connection.query(sql, values, (error, results) => {
+    if (error) {
+      console.error('Erro ao obter dados do perfil:', error);
+      return res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+
+    if (results.length > 0) {
+      const userData = results[0];
+      res.json(userData);
+    } else {
+      res.status(404).json({ error: 'Usuário não encontrado.' });
+    }
+  });
+});
+
+app.get('/numerosRede', async (req, res) => {
+
+  const sql = 'SELECT * FROM rede_apoio WHERE id_usuaria = ?';
+  const values = [id_user];
+
+  connection.query(sql, values, (error, results) => {
+    if (error) {
+      console.error('Erro ao obter dados da rede:', error);
+      return res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+
+    if (results.length > 0) {
+      const userData = results[0];
+      res.json(userData);
+    } else {
+      res.status(404).json({ error: 'Usuário não encontrado.' });
+    }
+  });
+});
+
+app.post('/atualizarRede', (req, res) => {
+  const { nomeCompleto, tel } = req.body;
+
+  // Verifica se o usuário está autenticado ou obtém o ID do usuário de alguma maneira
+  const id_user = getUserIdFromSomeWhere(); // Substitua isso pela lógica real de obtenção do ID do usuário
+
+  // Atualiza os dados na tabela rede_apoio para o usuário específico
+  const sql = 'UPDATE rede_apoio SET nomeCompleto = ?, tel = ? WHERE id_usuaria = ?';
+  const values = [nomeCompleto, tel, id_user];
+
+  connection.query(sql, values, (error, results) => {
+    if (error) {
+      console.error('Erro ao atualizar dados na rede de apoio:', error);
+      return res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+
+    res.json({ success: true, message: 'Dados da rede atualizados com sucesso.' });
+  });
+});
+
+
 
 app.listen(port, () => {
   console.log(`Servidor rodando em http://localhost:${port}`);

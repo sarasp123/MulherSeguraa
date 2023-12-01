@@ -33,7 +33,7 @@ const TelaRedeApoio = () => {
             padding: 10,
           }}
          />
-        <Text style={styles.titulo}>Órgãos de assistência à mulher</Text>
+        <Text style={styles.titulo}>Rede de apoio</Text>
       </View>
 
       <Tab.Navigator

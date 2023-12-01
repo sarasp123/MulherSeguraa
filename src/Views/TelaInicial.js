@@ -1,33 +1,86 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, Linking, Alert, Modal } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, Linking, Modal } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { DrawerActions } from '@react-navigation/native';
 import { Feather } from "@expo/vector-icons";
+import axios from 'axios';
 import * as Location from 'expo-location';
+import AudioRecorder from './Audio';
 
 const TelaInicial = () => {
   const navigation = useNavigation();
   const [showModal, setShowModal] = useState(false);
   const [countdown, setCountdown] = useState(5);
+  const [status, setStatus] = useState('denied');
+  const [recordingStarted, setRecordingStarted] = useState(false);
+  const [userData, setUserData] = useState({});
+  const [isRecording, setIsRecording] = useState(false);
+
+
+ /*  useEffect(() => {
+    checkPermission();
+    buscandoUser(); 
+  }, []); */
+
+ 
+  const buscandoUser = async () => {
+    try {
+      const response = await axios.get('http://10.11.34.130:3000/perfil');
+      setUserData(response.data);
+    } catch (error) {
+      console.error('Erro ao buscar dados do perfil:', error);
+    }
+  };
 
   useEffect(() => {
+    checkPermission();
+    buscandoUser(); 
     let timer;
     if (countdown > 0 && showModal) {
       timer = setInterval(() => {
         setCountdown((prev) => prev - 1);
       }, 1000);
     } else if (countdown === 0) {
-      // Abre o WhatsApp com uma mensagem pré-preenchida
       sendPanicMessage();
       setShowModal(false);
+      if (status === 'granted' && !recordingStarted) {
+        setRecordingStarted(true);
+        AudioRecorder(); // Inicia a gravação após o countdown
+      } else {
+        console.log('Permissão de gravação não concedida ou gravação já iniciada.');
+      }
+    }
+    if (countdown === 0 && showModal) {
+      // Send panic message
+      sendPanicMessage();
+      setShowModal(false);
+    
+      // Start recording
+      const audioRecorder = new AudioRecorder(
+        AudioContext.createMediaStreamSource(),
+        16000,
+        2
+      );
+      audioRecorder.record();
     }
 
-    return () => clearInterval(timer);
-  }, [countdown, showModal]);
+    return () => {
+      clearInterval(timer);
+      setIsRecording(false)
+    };
+  }, [countdown, showModal, status, recordingStarted]);
+
+  const checkPermission = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      setStatus(status);
+    } catch (error) {
+      console.error('Erro ao verificar permissão:', error);
+    }
+  };
 
   const sendPanicMessage = async () => {
     try {
-      // Obter a permissão de localização
       const { status } = await Location.requestForegroundPermissionsAsync();
 
       if (status !== 'granted') {
@@ -35,24 +88,14 @@ const TelaInicial = () => {
         return;
       }
 
-      // Obter a localização do dispositivo
       const location = await Location.getCurrentPositionAsync();
-
       const { latitude, longitude } = location.coords;
 
-      // Construir a mensagem
-      for(i=0;i<SQLError.length;i++)
-      {
-        const message = `Pânico! Preciso de ajuda!\nLocalização: https://maps.google.com/?q=${latitude},${longitude}`;
-        const phoneNumber = sql[i].telefone; '67996514882'; // Substitua pelo número de telefone real
+      const message = `Pânico! Preciso de ajuda!\nLocalização: https://maps.google.com/?q=${latitude},${longitude}`;
+      const phoneNumber = '67996514882'; // Substitua pelo número de telefone real
 
-      // Abre o WhatsApp com a mensagem pré-preenchida
-      const url = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
-
+      /* const url = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`; */
       Linking.openURL(url);
-
-      }
-      
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
     }
@@ -61,6 +104,11 @@ const TelaInicial = () => {
   const handlePanicButtonPress = () => {
     setShowModal(true);
     setCountdown(5);
+    setRecordingStarted(false); // Reinicia a flag quando o botão é pressionado novamente
+
+    if(!isRecording){
+      setIsRecording(true);
+    }
   };
 
   const handleConfirmPress = () => {
@@ -72,6 +120,20 @@ const TelaInicial = () => {
   const handleCancelPress = () => {
     setShowModal(false);
   };
+
+  const handleRecordingStart = () => {
+    // Callback chamado quando a gravação é iniciada
+    console.log('Gravação de áudio iniciada!');
+  };
+
+  const extrairPrimeiraPalavra = () => {
+    if (!userData.nomeCompleto) return '';
+    // Divida o nome completo em palavras usando o espaço como separador
+    const palavras = userData.nomeCompleto.split(' ');
+    // Retorne a primeira palavra
+    return palavras[0];
+  };
+
 
   return (
     <>
@@ -95,7 +157,7 @@ const TelaInicial = () => {
               style={styles.logo}
               
             />
-                <Text style={styles.ola}>Olá, NOME</Text>
+                <Text style={styles.ola}>Olá, {extrairPrimeiraPalavra()}</Text>
             </View>
         </View>
 
@@ -190,10 +252,12 @@ const TelaInicial = () => {
               >
                 <Text style={styles.modalButtonText}>Cancelar</Text>
               </TouchableOpacity>
+              
             </View>
           </View>
         </View>
       </Modal>
+      {isRecording && <AudioRecorder onRecordingStart={handleRecordingStart} />}
     </>
   );
 };

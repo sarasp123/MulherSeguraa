@@ -25,7 +25,7 @@ const TelaCadastrar = () => {
 
   const CadastrarRede = async () => {
     try {
-      const response = await axios.post('http://10.11.34.139:3000/cadastrarRede', {
+      const response = await axios.post('http://10.11.34.130:3000/cadastrarRede', {
         nomeCompleto,
         tel,
       });
