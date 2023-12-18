@@ -5,16 +5,19 @@ import { DrawerActions } from '@react-navigation/native';
 import { Feather } from "@expo/vector-icons";
 import axios from 'axios';
 import * as Location from 'expo-location';
-import AudioRecorder from './Audio';
+import {Audio} from 'expo-av';
+
 
 const TelaInicial = () => {
+
   const navigation = useNavigation();
   const [showModal, setShowModal] = useState(false);
   const [countdown, setCountdown] = useState(5);
   const [status, setStatus] = useState('denied');
-  const [recordingStarted, setRecordingStarted] = useState(false);
   const [userData, setUserData] = useState({});
+  const [redeData, setRedeData] = useState({});
   const [isRecording, setIsRecording] = useState(false);
+  const [audioUri, setAudioUri] = useState('');
 
 
  /*  useEffect(() => {
@@ -25,7 +28,7 @@ const TelaInicial = () => {
  
   const buscandoUser = async () => {
     try {
-      const response = await axios.get('http://10.11.34.130:3000/perfil');
+      const response = await axios.get('http://10.11.34.95:3000/perfil');
       setUserData(response.data);
     } catch (error) {
       console.error('Erro ao buscar dados do perfil:', error);
@@ -34,7 +37,6 @@ const TelaInicial = () => {
 
   useEffect(() => {
     checkPermission();
-    buscandoUser(); 
     let timer;
     if (countdown > 0 && showModal) {
       timer = setInterval(() => {
@@ -43,32 +45,13 @@ const TelaInicial = () => {
     } else if (countdown === 0) {
       sendPanicMessage();
       setShowModal(false);
-      if (status === 'granted' && !recordingStarted) {
-        setRecordingStarted(true);
-        AudioRecorder(); // Inicia a gravação após o countdown
-      } else {
-        console.log('Permissão de gravação não concedida ou gravação já iniciada.');
-      }
-    }
-    if (countdown === 0 && showModal) {
-      // Send panic message
-      sendPanicMessage();
-      setShowModal(false);
-    
-      // Start recording
-      const audioRecorder = new AudioRecorder(
-        AudioContext.createMediaStreamSource(),
-        16000,
-        2
-      );
-      audioRecorder.record();
+      /* startRecording();  */    
     }
 
     return () => {
       clearInterval(timer);
-      setIsRecording(false)
     };
-  }, [countdown, showModal, status, recordingStarted]);
+  }, [countdown, showModal, status]);
 
   const checkPermission = async () => {
     try {
@@ -79,60 +62,127 @@ const TelaInicial = () => {
     }
   };
 
-  const sendPanicMessage = async () => {
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-
-      if (status !== 'granted') {
-        console.log('Permissão de localização negada');
-        return;
-      }
-
-      const location = await Location.getCurrentPositionAsync();
-      const { latitude, longitude } = location.coords;
-
-      const message = `Pânico! Preciso de ajuda!\nLocalização: https://maps.google.com/?q=${latitude},${longitude}`;
-      const phoneNumber = '67996514882'; // Substitua pelo número de telefone real
-
-      /* const url = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`; */
-      Linking.openURL(url);
-    } catch (error) {
-      console.error('Erro ao enviar mensagem:', error);
+  const sendPanicMessage = () => {
+    checkLocationPermission()
+      .then(() => axios.post('http://10.11.34.95:3000/verificarRede'))
+      .then(response => {
+        const phoneNumber = response.data.tel;
+        return Location.getCurrentPositionAsync()
+          .then(location => ({ phoneNumber, location }));
+      })
+      .then(({ phoneNumber, location }) => {
+        const { latitude, longitude } = location.coords;
+        const message = `Pânico! Preciso de ajuda!\nLocalização: https://maps.google.com/?q=${latitude},${longitude}`;
+        const url = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+        Linking.openURL(url);
+      })
+      .catch(error => {
+        console.error('Erro ao enviar mensagem:', error);
+      });
+  };
+  
+  const checkLocationPermission = async () => {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      console.log('Permissão de localização negada');
+      throw new Error('Permissão de localização negada');
     }
   };
+  
 
   const handlePanicButtonPress = () => {
     setShowModal(true);
     setCountdown(5);
-    setRecordingStarted(false); // Reinicia a flag quando o botão é pressionado novamente
-
-    if(!isRecording){
-      setIsRecording(true);
-    }
   };
 
   const handleConfirmPress = () => {
     // Enviar mensagem quando o usuário confirma
     sendPanicMessage();
     setShowModal(false);
+    /* startRecording(); */
+    
+  
+    // Verifique se audioUri está definido antes de navegar
+    /* if (audioUri) {
+      navigation.navigate('TelaAudio', { audioUri: audioUri });
+    } else {
+      console.error('audioUri não está definido');
+    } */
   };
+  
 
-  const handleCancelPress = () => {
-    setShowModal(false);
-  };
+    const handleCancelPress = () => {
+      // Parar a gravação de áudio ao cancelar
+      /* stopRecording(); */
+      setShowModal(false);
+    };
 
-  const handleRecordingStart = () => {
-    // Callback chamado quando a gravação é iniciada
-    console.log('Gravação de áudio iniciada!');
-  };
 
   const extrairPrimeiraPalavra = () => {
+    buscandoUser();
     if (!userData.nomeCompleto) return '';
     // Divida o nome completo em palavras usando o espaço como separador
     const palavras = userData.nomeCompleto.split(' ');
     // Retorne a primeira palavra
     return palavras[0];
   };
+
+
+  // Adicione o seguinte código para lidar com a gravação de áudio
+  const startRecording = async () => {
+    try {
+      await Audio.requestPermissionsAsync();
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      });
+      const recording = new Audio.Recording();
+      await recording.prepareToRecordAsync(
+        Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY
+      );
+      await recording.startAsync();
+      setIsRecording(true);
+
+      setTimeout(async () => {
+        await recording.stopAndUnloadAsync();
+        setIsRecording(false);
+  
+        // Salve o áudio gravado em um arquivo
+        const uri = recording.getURI();
+        console.log('Áudio gravado em:', uri);
+  
+        // Atualize o estado com o URI do áudio gravado
+        setAudioUri(uri);
+        
+      }, 3000); // 3 segundos
+      
+    } catch (error) {
+      console.error('Erro ao iniciar a gravação de áudio:', error);
+    }
+    
+  };
+
+  const stopRecording = async () => {
+    try {
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+      });
+      setIsRecording(false);
+    } catch (error) {
+      console.error('Erro ao parar a gravação de áudio:', error);
+    }
+  };
+
+
+  const handlePlayButtonPress = async () => {
+    if (audioUri) {
+      const { sound } = await Audio.Sound.createAsync(
+        { uri: audioUri },
+        { shouldPlay: true }
+      );      
+    }  
+  };
+  
 
 
   return (
@@ -226,10 +276,13 @@ const TelaInicial = () => {
             <Feather name="alert-triangle" size={50} color="red" />
             <Text style={styles.textButtons}>Botão do Pânico</Text>
           </TouchableOpacity>
+          {/* <TouchableOpacity onPress={handlePlayButtonPress}>
+  <Feather name="play" size={30} color="green" />
+</TouchableOpacity> */}
+
         </View>
       </View>
 
-      {/* Modal */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -257,7 +310,6 @@ const TelaInicial = () => {
           </View>
         </View>
       </Modal>
-      {isRecording && <AudioRecorder onRecordingStart={handleRecordingStart} />}
     </>
   );
 };

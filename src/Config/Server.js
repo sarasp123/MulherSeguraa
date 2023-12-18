@@ -57,11 +57,11 @@ app.post('/cadastrar', async (req, res) => {
 
     connection.query(sql, values, (error, results) => {
       if (error) {
-        console.error('Erro ao cadastrar usuário no banco de dados:', error);
-        return res.json({ success: false, message: 'Erro ao cadastrar usuário.' });
+        console.error('Erro ao cadastrar usuária no banco de dados:', error);
+        return res.json({ success: false, message: 'Erro ao cadastrar usuária.' });
       }
-      console.log('Usuário cadastrado com sucesso:', results);
-      res.json({ success: true, message: 'Usuário cadastrado com sucesso.' });
+      console.log('Usuária cadastrado com sucesso:', results);
+      res.json({ success: true, message: 'Usuária cadastrado com sucesso.' });
     });
   } catch (error) {
     console.error('Erro ao gerar hash da senha:', error);
@@ -90,14 +90,14 @@ app.post('/verificarUsuario', (req, res) => {
 
   connection.query(sql, values, (error, results) => {
     if (error) {
-      console.error('Erro ao verificar usuário no banco de dados:', error);
+      console.error('Erro ao verificar usuária no banco de dados:', error);
       return res.json({ existeUsuario: false, error: 'Erro interno do servidor' });
     }
 
     if (results.length > 0) {
-      res.json({ existeUsuario: true, message: 'Já existe um usuário com estes dados.' });
+      res.json({ existeUsuario: true, message: 'Já existe uma usuária com estes dados.' });
     } else {
-      res.json({ existeUsuario: false, message: 'Usuário não encontrado.' });
+      res.json({ existeUsuario: false, message: 'Usuária não encontrado.' });
     }
   });
 });
@@ -121,7 +121,7 @@ app.post('/login', async (req, res) => {
 
     if (results.length > 0) {
       id_user = results[0].id_usuaria;
-      console.log(id_user+" usuaria teste");
+      console.log("id_usuaria "+id_user);
       const senhaCorrespondente = results[0].senha;
       const senhaCorreta = await bcrypt.compare(senha, senhaCorrespondente);
 
@@ -138,41 +138,10 @@ app.post('/login', async (req, res) => {
 
 
 
-
 app.post('/cadastrarRede', async (req, res) => {
-  const {
-    nomeCompleto,
-    tel,
-  } = req.body;
-
-  try {
-    const sql = 'INSERT INTO rede_apoio (id_usuaria, nomeCompleto, tel) VALUES (?, ?, ?)';
-    const values = [
-      id_user,
-      nomeCompleto,
-      tel,
-    ];
-
-    connection.query(sql, values, (error, results) => {
-      if (error) {
-        console.error('Erro ao cadastrar usuário no banco de dados:', error);
-        return res.json({ success: false, message: 'Erro ao cadastrar usuário.' });
-      }
-      console.log('Usuário cadastrado com sucesso:', results);
-      res.json({ success: true, message: 'Usuário cadastrado com sucesso.' });
-    });
-  } catch (error) {
-    console.error('Erro ao gerar hash da senha:', error);
-    res.json({ success: false, message: 'Erro interno do servidor.' });
-  }
-});
-
-app.post('/verificarRede', (req, res) => {
-  const { tel } = req.body; // Supondo que você está verificando pelo número de telefone
-
-  // Verifica se o número de telefone já existe na tabela rede_apoio
-  const sql = 'SELECT * FROM rede_apoio WHERE tel = ?';
-  const values = [tel];
+ 
+  const sql = 'SELECT * FROM rede_apoio WHERE id_usuaria = ?';
+  const values = [id_user];
 
   connection.query(sql, values, (error, results) => {
     if (error) {
@@ -181,10 +150,61 @@ app.post('/verificarRede', (req, res) => {
     }
 
     if (results.length > 0) {
-      res.json({ existeNumero: true, message: 'Número já cadastrado na rede de apoio.' });
-    } else {
-      res.json({ existeNumero: false, message: 'Número não encontrado na rede de apoio.' });
+     
+      return res.json({ success: false, message: 'Usuária já possui um número na rede de apoio.' });
+     
     }
+    else{
+      const { nomeCompleto, tel } = req.body;
+      const sql = 'INSERT INTO rede_apoio (id_usuaria, nomeCompleto, tel) VALUES (?, ?, ?)';
+      const values = [id_user, nomeCompleto, tel];
+  
+      connection.query(sql, values, (error, results) => {
+        if (error) {
+          console.error('Erro ao cadastrar usuária no banco de dados:', error);
+          return res.json({ success: false, message: 'Erro ao cadastrar usuária.' });
+        }
+  
+        console.log('Usuária cadastrado com sucesso:', results);
+        res.json({ success: true, message: 'Usuária cadastrado com sucesso.' });
+      });
+
+    }
+  });
+});
+app.post('/atualizarRede', (req, res) => {
+  const { nomeCompleto, tel } = req.body;
+
+  const sql = 'UPDATE rede_apoio SET nomeCompleto = ?, tel = ? WHERE id_usuaria = ?';
+  const values = [nomeCompleto, tel, id_user];
+
+  connection.query(sql, values, (error, results) => {
+    if (error) {
+      console.error('Erro ao atualizar dados da rede de apoio:', error);
+      /* return res.status(500).json({ error: 'Erro interno do servidor' }); */
+    }
+
+    res.json({ success: true, message: 'Dados da rede atualizados com sucesso.' });
+  });
+});
+
+app.post('/verificarRede', (req, res) => {
+
+  const sql = 'SELECT * FROM rede_apoio WHERE id_usuaria = ?';
+  const values = [id_user];
+
+  connection.query(sql, values, (error, results) => {
+    if (error) {
+      console.error('Erro ao obter dados do perfil:', error);
+      return res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+
+    if (results.length > 0) {
+      const redeData = results[0];
+      res.json(redeData);
+    } /* else {
+      res.status(404).json({ error: 'Rede de apoio não encontrado.' });
+    } */
   });
 });
 
@@ -206,48 +226,25 @@ app.get('/perfil', async (req, res) => {
       const userData = results[0];
       res.json(userData);
     } else {
-      res.status(404).json({ error: 'Usuário não encontrado.' });
+      res.status(404).json({ error: 'Usuária não encontrado.' });
     }
   });
 });
 
-app.get('/numerosRede', async (req, res) => {
 
-  const sql = 'SELECT * FROM rede_apoio WHERE id_usuaria = ?';
-  const values = [id_user];
+app.post('/atualizarPerfil', (req, res) => {
+  const { nomeCompleto, nomeSocial, dataNasc, email, senha } = req.body;
 
-  connection.query(sql, values, (error, results) => {
-    if (error) {
-      console.error('Erro ao obter dados da rede:', error);
-      return res.status(500).json({ error: 'Erro interno do servidor' });
-    }
-
-    if (results.length > 0) {
-      const userData = results[0];
-      res.json(userData);
-    } else {
-      res.status(404).json({ error: 'Usuário não encontrado.' });
-    }
-  });
-});
-
-app.post('/atualizarRede', (req, res) => {
-  const { nomeCompleto, tel } = req.body;
-
-  // Verifica se o usuário está autenticado ou obtém o ID do usuário de alguma maneira
-  const id_user = getUserIdFromSomeWhere(); // Substitua isso pela lógica real de obtenção do ID do usuário
-
-  // Atualiza os dados na tabela rede_apoio para o usuário específico
-  const sql = 'UPDATE rede_apoio SET nomeCompleto = ?, tel = ? WHERE id_usuaria = ?';
-  const values = [nomeCompleto, tel, id_user];
+  const sql = 'UPDATE usuaria SET nomeCompleto = ?, nomeSocial = ?, dataNasc= ?, email =?, senha=? WHERE id_usuaria = ?';
+  const values = [nomeCompleto, nomeSocial, dataNasc, email, senha, id_user];
 
   connection.query(sql, values, (error, results) => {
     if (error) {
-      console.error('Erro ao atualizar dados na rede de apoio:', error);
-      return res.status(500).json({ error: 'Erro interno do servidor' });
+      console.error('Erro ao atualizar dados da usuária:', error);
+      /* return res.status(500).json({ error: 'Erro interno do servidor' }); */
     }
 
-    res.json({ success: true, message: 'Dados da rede atualizados com sucesso.' });
+    res.json({ success: true, message: 'Dados da usuária atualizados com sucesso.' });
   });
 });
 

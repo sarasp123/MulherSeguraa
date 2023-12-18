@@ -24,10 +24,9 @@ const TelaAssistencia = () => {
   };
 
   const linkTel = (telefones) => {
-    if (telefones.some(num => num.toLowerCase().includes('whats'))) {
+    if (telefones.some(num => num.toLowerCase().includes('WhatsApp'))) {
       // Se algum número tiver a indicação de "whats", abrir no WhatsApp
-      const cleanedNumbers = telefones.map(num => num.replace(/[^0-9]/g, ''));
-      const whatsappLink = `https://wa.me/${cleanedNumbers[0]}`;
+      const whatsappLink = `https://wa.me/${telefones}`;
       Linking.openURL(whatsappLink);
     } else {
       // Caso contrário, abrir no aplicativo de telefone padrão

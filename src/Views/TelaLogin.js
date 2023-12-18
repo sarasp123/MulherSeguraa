@@ -59,21 +59,16 @@ const TelaLogin = () => {
 
       <TouchableOpacity
         style={styles.button}
-        /* onPress={() => {
-          navigation.navigate('Inicio');
-        }} */
         onPress={async () => {
           try {
-            const response = await axios.post('http://10.11.34.130:3000/login', {
+            const response = await axios.post('http://10.11.34.95:3000/login', {
               email,
               senha,
             });
       
             if (response.data.success) {
-              // Login bem-sucedido, navegue para a tela desejada (por exemplo, 'Inicio')
               navigation.navigate('Inicio');
             } else {
-              // Login falhou, exiba uma mensagem de erro
               alert('Login falhou. Credenciais inválidas.');
             }
           } catch (error) {
@@ -84,16 +79,6 @@ const TelaLogin = () => {
       >
         <Text style={styles.textButton}>Entrar</Text>
       </TouchableOpacity>
-
-      {/* <TouchableOpacity
-        style={styles.esqueciSenha}
-        onPress={() => {
-          // Adicione a lógica de navegação aqui
-          // Por exemplo: navigation.navigate('TelaPrincipal');
-        }}
-      >
-        <Text style={styles.textButton2}>Esqueci minha senha</Text>
-      </TouchableOpacity> */}
 
       <TouchableOpacity
         style={styles.cadastre}

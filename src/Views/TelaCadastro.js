@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Picker } from "@react-native-picker/picker";
@@ -13,14 +13,14 @@ const TelaCadastro = () => {
   const [secureTextEntryConfirm, setSecureTextEntryConfirm] = useState(true);
 
   const [tipoDocumento, setTipoDocumento] = useState("Selecione o documento");
-  const [documento, setDocumento] = useState('')
-  const [nomeCompleto, setNome] = useState('')
-  const [nomeSocial, setNomeSocial] = useState('')
-  const [nomeMae, setNomeMae] = useState('')
-  const [dataNasc, setDataNasc] = useState('')
-  const [email, setEmail] = useState('')
-  const [senha, setSenha] = useState('')
-  const [confirmSenha, setConfirmsenha] = useState('')
+  const [documento, setDocumento] = useState('');
+  const [nomeCompleto, setNome] = useState('');
+  const [nomeSocial, setNomeSocial] = useState('');
+  const [nomeMae, setNomeMae] = useState('');
+  const [dataNasc, setDataNasc] = useState('');
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+  const [confirmSenha, setConfirmsenha] = useState('');
   const [camposCertos, setCamposCertos] = useState(false);
   const [senhaCerta, setSenhaCerta] = useState(false);
 
@@ -37,15 +37,13 @@ const TelaCadastro = () => {
       setSenhaCerta(true);
       return true;
     } else {
-      alert('As senhas não coincidem');
       setSenhaCerta(false);
       return false;
-    }  
-  }
+    }
+  };
 
   const Campos = () => {
     if (!nomeCompleto || !nomeMae || !dataNasc || !email || !senha || !confirmSenha) {
-      alert('Preencha os campos corretamente');
       setCamposCertos(false);
       return false;
     } else {
@@ -53,25 +51,34 @@ const TelaCadastro = () => {
       return true;
     }
   };
-  
+
   const CadastrarUsuaria = async () => {
     try {
+      // Verifica se os campos estão preenchidos corretamente
+      const camposValidos = Campos();
+      const senhaValida = ConfirmandoSenha();
+
+      if (!camposValidos || !senhaValida) {
+        alert('Campos incorretos')
+        return;
+      }
+
       // Verifica se já existe um usuário com o mesmo CPF no banco de dados
-      const verificaUsuarioExistente = await axios.post('http://10.11.34.130:3000/verificarUsuario', {
+      const verificaUsuarioExistente = await axios.post('http://10.11.34.95:3000/verificarUsuario', {
         cpf: tipoDocumento === 'CPF' ? documento : null,
         rg: tipoDocumento === 'RG' ? documento : null,
         email,
       });
-  
+
       if (verificaUsuarioExistente.data.existeUsuario) {
         alert('Já existe um usuário cadastrado com estes dados.');
         return;
       }
-  
+
       const [dia, mes, ano] = dataNasc.split('/');
       const dataNascFormatada = `${ano}/${mes}/${dia}`;
-  
-      const response = await axios.post('http://10.11.34.130:3000/cadastrar', {
+
+      const response = await axios.post('http://10.11.34.95:3000/cadastrar', {
         tipoDocumento,
         documento,
         nomeCompleto,
@@ -81,12 +88,12 @@ const TelaCadastro = () => {
         email,
         senha,
       });
-    
+
       console.log('Resposta do servidor:', response.data);
-    
+
       if (response.data.success) {
         alert('Usuário cadastrado com sucesso!');
-        navigation.navigate('Inicio');
+        navigation.navigate('TelaLogin');
       } else {
         alert('Erro ao cadastrar usuário. Por favor, tente novamente.');
       }
@@ -94,7 +101,7 @@ const TelaCadastro = () => {
       console.error('Erro na requisição Axios:', error.message);
       alert('Erro interno do servidor');
     }
-  };  
+  }; 
 
   return (
     <View style={styles.container}>
@@ -127,7 +134,6 @@ const TelaCadastro = () => {
               keyboardType={'numeric'}
               type={tipoDocumento === 'CPF' ? 'cpf' : 'custom'}
               options={{ mask: '9.999.999' }}
-              /* maxLength={tipoDocumento === 'CPF' ? 11 : 11} */
               onChangeText={setDocumento}
             />
           </>
@@ -277,9 +283,6 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     paddingHorizontal: 10,
     color: 'white',
-    /* borderWidth: 1,
-    borderColor: '#4759FA',
-    borderRadius: 5, */
   },
   divider: {
     height: 1, 

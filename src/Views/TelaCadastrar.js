@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import { StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from "axios";
-
-import Logo from '../Componentes/estiloLogo';
 import { TextInputMask } from "react-native-masked-text";
 
 const TelaCadastrar = () => {
@@ -25,7 +23,8 @@ const TelaCadastrar = () => {
 
   const CadastrarRede = async () => {
     try {
-      const response = await axios.post('http://10.11.34.130:3000/cadastrarRede', {
+
+      const response = await axios.post('http://10.11.34.95:3000/cadastrarRede', {
         nomeCompleto,
         tel,
       });
@@ -33,11 +32,11 @@ const TelaCadastrar = () => {
       console.log('Resposta do servidor:', response.data);
   
       if (response.data.success) {
-        alert('Usuário cadastrado com sucesso!');
+        alert('Rede de apoio cadastrada com sucesso!');
         navigation.navigate('TelaCadastrados');
-      } else {
-        alert('Erro ao cadastrar rede de apoio. Por favor, tente novamente.');
-      }
+      }  else {
+        alert('Usuária já possui um número da rede de apoio cadastrado');
+      } 
     } catch (error) {
       console.error('Erro na requisição Axios:', error);
     }

@@ -1,28 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
 import axios from 'axios';
-
-
-import dataAssistencias from '../data/Assistencias';
+import { TextInputMask } from 'react-native-masked-text';
 
 
 const TelaCadastrados = () => {
   const navigation = useNavigation();
-  const assistencias = dataAssistencias;
 
   const [expanded, setExpanded] = useState(null);
   const [userData, setUserData] = useState({});
   const [editing, setEditing] = useState(false);
+  const [dataChanged, setDataChanged] = useState(false);
+  const [existe, setExiste] = useState(false);
   const [editedData, setEditedData] = useState({
     nomeCompleto: userData.nomeCompleto || '',
     tel: userData.tel || '',
   });
 
-  const toggleExpanded = (title) => {
-    setExpanded(expanded === title ? null : title);
-  };
 
   const handleEditToggle = () => {
     if (editing) {
@@ -34,30 +30,51 @@ const TelaCadastrados = () => {
 
   const sendEditedData = async () => {
     try {
-      await axios.post('http://10.11.34.130:3000/atualizarRede', {
+      await axios.post('http://10.11.34.95:3000/atualizarRede', {
         nomeCompleto: editedData.nomeCompleto,
         tel: editedData.tel,
       });
+
+      // Define que os dados foram alterados
+      setDataChanged(true);
     } catch (error) {
       console.error('Erro ao atualizar dados da rede:', error);
     }
   };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://10.11.34.130:3000/numerosRede');
+        const response = await axios.post('http://10.11.34.95:3000/verificarRede');
         setUserData(response.data);
+        const newData = response.data;
+
+        if(dataChanged){
+          Alert.alert('Atualização', 'Os dados da sua rede de apoio foram atualizados')
+          setDataChanged(false)
+        }
+        setExiste(true)
+        setUserData(newData);
         setEditedData({
-          nomeCompleto: response.data.nomeCompleto || '',
-          tel: response.data.tel || '',
-        });
+          nomeCompleto: userData.nomeCompleto || '',
+          tel: userData.tel || '',
+        })
       } catch (error) {
-        console.error('Erro ao buscar dados da rede:', error);
+        console.error('Erro ao buscar dados do perfil:', error);
       }
     };
   
     fetchData();
-  }, []);
+
+  }, [dataChanged]);
+
+  if (!existe) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.texto}>Rede de apoio não cadastrada</Text>
+      </View>
+    );
+  }else{ 
 
   return (
     
@@ -85,9 +102,15 @@ const TelaCadastrados = () => {
         <View>
           <Text style={styles.tituloNome}>Telefone:</Text>
           {editing ? (
-            <TextInput
+            <TextInputMask
               style={styles.nome}
               value={editedData.tel}
+              type={'cel-phone'}
+              options={{
+                maskType: 'BRL',
+                withDDD: true,
+                dddMask: '(99) ',
+              }}
               onChangeText={(text) => setEditedData({ ...editedData, tel: text })}
             />
           ) : (
@@ -102,6 +125,7 @@ const TelaCadastrados = () => {
   );
 };
 
+}
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#000',
